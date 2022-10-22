@@ -1,6 +1,5 @@
 import { Component } from 'react';
 import { toast } from 'react-toastify';
-// import { FcSearch } from 'react-icons/fc';
 
 export class SearchBar extends Component {
   state = {
