@@ -1,5 +1,7 @@
 import { Component } from 'react';
 import { toast } from 'react-toastify';
+import css from './SearchBar.module.css';
+import { ReactComponent as SearchIcon } from '../../icons/searchIcon.svg';
 
 export class SearchBar extends Component {
   state = {
@@ -23,14 +25,15 @@ export class SearchBar extends Component {
 
   render() {
     return (
-      <header class="searchbar">
-        <form onSubmit={this.handleSubmit} class="form">
-          <button type="submit" class="button">
-            <span class="button-label">Search</span>
+      <header className={css.searchbar}>
+        <form onSubmit={this.handleSubmit} className={css.form}>
+          <button type="submit" className={css.button}>
+            <SearchIcon width="30" height="30" fill="red" />
+            <span className={css.buttonLabel}>Search</span>
           </button>
 
           <input
-            class="input"
+            className={css.input}
             type="text"
             autocomplete="off"
             autofocus

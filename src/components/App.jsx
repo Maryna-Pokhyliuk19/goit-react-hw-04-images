@@ -1,7 +1,8 @@
 import { Component } from 'react';
 import { SearchBar } from './Searchbar/SearchBar';
 import { ToastContainer } from 'react-toastify';
-import { ImageGalleryItem } from './ImageGalleryItem/ImageGalleryItem';
+
+// import { ImageGalleryItem } from './ImageGalleryItem/ImageGalleryItem';
 
 export class App extends Component {
   state = {
@@ -15,7 +16,7 @@ export class App extends Component {
     return (
       <div>
         <SearchBar onSubmit={this.handleFormSubmit} />
-        <ImageGalleryItem search={this.state.search} />
+        {/* <ImageGalleryItem search={this.state.search} /> */}
         <ToastContainer autoClose={3000} />
       </div>
     );
