@@ -1,7 +1,8 @@
 import { Component } from 'react';
 import { toast } from 'react-toastify';
 import css from './SearchBar.module.css';
-import { ReactComponent as SearchIcon } from '../../icons/searchIcon.svg';
+import { AiOutlineSearch } from 'react-icons/ai';
+import 'react-toastify/dist/ReactToastify.css';
 
 export class SearchBar extends Component {
   state = {
@@ -16,7 +17,16 @@ export class SearchBar extends Component {
     event.preventDefault();
 
     if (this.state.search.trim() === '') {
-      return toast.error('Enter text');
+      toast.error('Enter text', {
+        position: 'top-right',
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return;
     }
 
     this.props.onSubmit(this.state.search);
@@ -28,15 +38,15 @@ export class SearchBar extends Component {
       <header className={css.searchbar}>
         <form onSubmit={this.handleSubmit} className={css.form}>
           <button type="submit" className={css.button}>
-            <SearchIcon width="30" height="30" fill="red" />
+            <AiOutlineSearch style={{ width: 30, height: 30 }} />
             <span className={css.buttonLabel}>Search</span>
           </button>
 
           <input
             className={css.input}
             type="text"
-            autocomplete="off"
-            autofocus
+            autoComplete="off"
+            autoFocus
             placeholder="Search images and photos"
             value={this.state.search}
             onChange={this.handleNameChange}

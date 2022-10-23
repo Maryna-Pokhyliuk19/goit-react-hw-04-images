@@ -1,9 +1,24 @@
-// export class ImageGalleryItem extends Component {
-//   render() {
-//     return (
-//       <li class="gallery-item">
-//         <img src="" alt="" />
-//       </li>
-//     );
-//   }
-// }
+import { Modal } from 'components/Modal/Modal';
+import { Component } from 'react';
+import css from './ImageGalleryItem.module.css';
+
+export class ImageGalleryItem extends Component {
+  render() {
+    const {
+      image: { webformatURL, largeImageURL, tags },
+    } = this.props;
+    return (
+      <>
+        <li className={css.galleryItem}>
+          <img
+            className={css.galleryItemImage}
+            src={webformatURL}
+            alt={tags}
+            onClick={this.onToggleModal}
+          />
+        </li>
+        <Modal modal={largeImageURL} alt={tags} />
+      </>
+    );
+  }
+}
