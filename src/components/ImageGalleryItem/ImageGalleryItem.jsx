@@ -7,6 +7,7 @@ export class ImageGalleryItem extends Component {
     const {
       image: { webformatURL, largeImageURL, tags },
     } = this.props;
+
     return (
       <>
         <li className={css.galleryItem}>
@@ -17,7 +18,7 @@ export class ImageGalleryItem extends Component {
             onClick={this.onToggleModal}
           />
         </li>
-        <Modal modal={largeImageURL} alt={tags} />
+        <Modal image={largeImageURL} alt={tags} />
       </>
     );
   }

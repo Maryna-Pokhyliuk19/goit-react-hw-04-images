@@ -4,7 +4,6 @@ import { ToastContainer } from 'react-toastify';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { getImagesViaApi } from 'services/api';
 import { Loader } from './Loader/Loader';
-// import { Modal } from './Modal/Modal';
 
 export class App extends Component {
   state = {
@@ -45,12 +44,6 @@ export class App extends Component {
     this.setState(prevState => ({ page: prevState.page + 1, isLoading: true }));
   };
 
-  // onToggleModal = () => {
-  //   this.setState(({ showModal }) => ({
-  //     showModal: !showModal,
-  //   }));
-  // };
-
   render() {
     return (
       <div className="app">
@@ -59,7 +52,6 @@ export class App extends Component {
 
         <ToastContainer autoClose={3000} />
         <Loader onClick={this.onLoader} />
-        {/* <Modal onCloseModal={this.onToggleModal} /> */}
       </div>
     );
   }
