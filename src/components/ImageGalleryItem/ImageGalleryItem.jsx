@@ -28,7 +28,13 @@ export class ImageGalleryItem extends Component {
             onClick={this.onToggleModal}
           />
         </li>
-        {this.state.showModal && <Modal image={largeImageURL} alt={tags} />}
+        {this.state.showModal && (
+          <Modal
+            onClose={this.onToggleModal}
+            image={largeImageURL}
+            alt={tags}
+          />
+        )}
       </>
     );
   }
