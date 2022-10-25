@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import { ThreeDots } from 'react-loader-spinner';
 import { SearchBar } from './Searchbar/SearchBar';
 import { ToastContainer } from 'react-toastify';
 import { ImageGallery } from './ImageGallery/ImageGallery';
@@ -27,7 +28,10 @@ export class App extends Component {
         prevState.search !== this.state.search ||
         prevState.page !== this.state.page
       ) {
-        this.setState({ images: [...prevState.images, ...images.hits] });
+        this.setState({
+          images: [...images.hits],
+          isLoading: false,
+        });
       }
     } catch (error) {
       console.log('error');
@@ -51,7 +55,20 @@ export class App extends Component {
         <ImageGallery images={this.state.images} />
 
         <ToastContainer autoClose={3000} />
-        <Loader onClick={this.onLoader} />
+
+        {this.state.isLoading && (
+          <ThreeDots
+            height="80"
+            width="80"
+            radius="9"
+            color="#4fa94d"
+            ariaLabel="three-dots-loading"
+            wrapperStyle={{ display: 'flex', justifyContent: 'center' }}
+            wrapperClassName=""
+            visible={true}
+          />
+        )}
+        {this.state.images.length > 0 && <Loader onClick={this.onLoader} />}
       </div>
     );
   }
