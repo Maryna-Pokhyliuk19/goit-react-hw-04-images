@@ -1,3 +1,5 @@
+import Notiflix from 'notiflix';
+import 'notiflix/dist/notiflix-3.2.5.min.css';
 import { Component } from 'react';
 import { ThreeDots } from 'react-loader-spinner';
 import { SearchBar } from './Searchbar/SearchBar';
@@ -18,20 +20,23 @@ export class App extends Component {
     if (!this.state.isLoading) {
       return;
     }
+    const { page, search } = this.state;
     try {
-      const images = await getImagesViaApi({
-        search: this.state.search,
-        page: this.state.page,
+      const images = await getImagesViaApi({ search, page });
+
+      this.setState(prevState => {
+        return {
+          images: [...prevState.images, ...images.hits],
+          isLoading: false,
+        };
       });
 
-      if (
-        prevState.search !== this.state.search ||
-        prevState.page !== this.state.page
-      ) {
-        this.setState({
-          images: [...images.hits],
-          isLoading: false,
-        });
+      if (images.totalHits === 0) {
+        Notiflix.Notify.failure(
+          'Sorry, there are no images matching your search query. Please try again.'
+        );
+
+        return;
       }
     } catch (error) {
       console.log('error');
@@ -41,11 +46,14 @@ export class App extends Component {
   }
 
   handleFormSubmit = search => {
-    this.setState({ search, images: [], page: 1, isLoading: true });
+    this.setState({ search, images: [], page: 1, isLoading: false });
   };
 
   onLoader = () => {
-    this.setState(prevState => ({ page: prevState.page + 1, isLoading: true }));
+    this.setState(prevState => ({
+      page: prevState.page + 1,
+      isLoading: false,
+    }));
   };
 
   render() {
