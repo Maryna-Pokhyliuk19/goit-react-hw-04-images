@@ -24,20 +24,19 @@ export class App extends Component {
     try {
       const images = await getImagesViaApi({ search, page });
 
+      if (images.data.totalHits === 0) {
+        Notiflix.Notify.failure(
+          'Sorry, there are no images matching your search query. Please try again.'
+        );
+        return;
+      }
+
       this.setState(prevState => {
         return {
           images: [...prevState.images, ...images.hits],
           isLoading: false,
         };
       });
-
-      if (images.totalHits === 0) {
-        Notiflix.Notify.failure(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-
-        return;
-      }
     } catch (error) {
       console.log('error');
     } finally {
