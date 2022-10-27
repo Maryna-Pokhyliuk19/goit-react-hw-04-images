@@ -1,5 +1,4 @@
 import Notiflix from 'notiflix';
-import 'notiflix/dist/notiflix-3.2.5.min.css';
 import { Component } from 'react';
 import { ThreeDots } from 'react-loader-spinner';
 import { SearchBar } from './Searchbar/SearchBar';
@@ -14,67 +13,59 @@ export class App extends Component {
     images: [],
     page: 1,
     isLoading: false,
-    totalHits: null,
-    showModal: false,
+    showLoadMore: true,
   };
 
   async componentDidUpdate(prevProps, prevState) {
+    if (!this.state.isLoading) {
+      return;
+    }
     const { page, search } = this.state;
     try {
+      const images = await getImagesViaApi({ search, page });
+      console.log(images);
+      if (this.state.images.length === 0 && images.totalHits === 0) {
+        Notiflix.Notify.info(`Sorry, there is no ${search}`);
+        return;
+      }
+      if (images.totalHits <= page * 12) {
+        this.setState({ showLoadMore: false });
+      }
       if (
         prevState.search !== this.state.search ||
-        prevState.images !== this.state.images
+        prevState.page !== this.state.page
       ) {
-        const response = await getImagesViaApi({ search, page });
-        const images = response.data.hits;
-        if (!images.length) {
-          Notiflix.Notify.failure(
-            'Sorry, there are no images matching your search query. Please try again.'
-          );
-          this.setState(() => ({ isloading: false }));
-        } else {
-          this.setState(prevState => ({
-            images: [...prevState.images, ...images],
-            isLoading: false,
-            totalHits: response.data.totalHits,
-          }));
-        }
+        this.setState({
+          images: [...this.state.images, ...images.hits],
+          isLoading: false,
+        });
       }
     } catch (error) {
-      console.log('error');
+      Notiflix.Notify.info('Sorry, something went wrong');
     } finally {
       this.setState({ isLoading: false });
     }
   }
 
-  handleFormSubmit = data => {
+  handleFormSubmit = search => {
     this.setState({
-      search: data,
+      search,
       images: [],
       page: 1,
       isLoading: true,
-      totalHits: null,
+      showLoadMore: true,
     });
   };
 
   onLoader = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+    this.setState(prevState => ({ page: prevState.page + 1, isLoading: true }));
   };
 
   render() {
     return (
       <div className="app">
         <SearchBar onSubmit={this.handleFormSubmit} />
-
-        {this.state.isLoading && this.state.images.length > 0 && (
-          <Loader onClick={this.onLoader} />
-        )}
-
-        {this.state.images !== [] && (
-          <ImageGallery images={this.state.images} />
-        )}
+        <ImageGallery images={this.state.images} />
 
         <ToastContainer autoClose={3000} />
 
@@ -89,6 +80,9 @@ export class App extends Component {
             wrapperClassName=""
             visible={true}
           />
+        )}
+        {this.state.images.length > 0 && this.state.showLoadMore && (
+          <Loader onClick={this.onLoader} disabled={this.state.isLoading} />
         )}
       </div>
     );
