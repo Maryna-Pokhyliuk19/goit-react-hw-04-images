@@ -14,29 +14,32 @@ export class App extends Component {
     images: [],
     page: 1,
     isLoading: false,
+    totalHits: null,
+    showModal: false,
   };
 
   async componentDidUpdate(prevProps, prevState) {
-    if (!this.state.isLoading) {
-      return;
-    }
     const { page, search } = this.state;
     try {
-      const images = await getImagesViaApi({ search, page });
-
-      if (images.data.totalHits === 0) {
-        Notiflix.Notify.failure(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-        return;
+      if (
+        prevState.search !== this.state.search ||
+        prevState.images !== this.state.images
+      ) {
+        const response = await getImagesViaApi({ search, page });
+        const images = response.data.hits;
+        if (!images.length) {
+          Notiflix.Notify.failure(
+            'Sorry, there are no images matching your search query. Please try again.'
+          );
+          this.setState(() => ({ isloading: false }));
+        } else {
+          this.setState(prevState => ({
+            images: [...prevState.images, ...images],
+            isLoading: false,
+            totalHits: response.data.totalHits,
+          }));
+        }
       }
-
-      this.setState(prevState => {
-        return {
-          images: [...prevState.images, ...images.hits],
-          isLoading: false,
-        };
-      });
     } catch (error) {
       console.log('error');
     } finally {
@@ -44,14 +47,19 @@ export class App extends Component {
     }
   }
 
-  handleFormSubmit = search => {
-    this.setState({ search, images: [], page: 1, isLoading: false });
+  handleFormSubmit = data => {
+    this.setState({
+      search: data,
+      images: [],
+      page: 1,
+      isLoading: true,
+      totalHits: null,
+    });
   };
 
   onLoader = () => {
     this.setState(prevState => ({
       page: prevState.page + 1,
-      isLoading: false,
     }));
   };
 
@@ -59,7 +67,14 @@ export class App extends Component {
     return (
       <div className="app">
         <SearchBar onSubmit={this.handleFormSubmit} />
-        <ImageGallery images={this.state.images} />
+
+        {this.state.isLoading && this.state.images.length > 0 && (
+          <Loader onClick={this.onLoader} />
+        )}
+
+        {this.state.images !== [] && (
+          <ImageGallery images={this.state.images} />
+        )}
 
         <ToastContainer autoClose={3000} />
 
@@ -75,7 +90,6 @@ export class App extends Component {
             visible={true}
           />
         )}
-        {this.state.images.length > 0 && <Loader onClick={this.onLoader} />}
       </div>
     );
   }
