@@ -1,5 +1,5 @@
 import Notiflix from 'notiflix';
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { ThreeDots } from 'react-loader-spinner';
 import { SearchBar } from './Searchbar/SearchBar';
 import { ToastContainer } from 'react-toastify';
@@ -7,84 +7,74 @@ import { ImageGallery } from './ImageGallery/ImageGallery';
 import { getImagesViaApi } from 'services/api';
 import { Loader } from './Loader/Loader';
 
-export class App extends Component {
-  state = {
-    search: '',
-    images: [],
-    page: 1,
-    isLoading: false,
-    showLoadMore: true,
-  };
+export const App = () => {
+  const [search, setSearch] = useState('');
+  const [images, setImages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showLoadMore, setShowLoadMore] = useState(true);
 
-  async componentDidUpdate(prevProps, prevState) {
-    if (!this.state.isLoading) {
+  useEffect(() => {
+    const controller = new AbortController();
+    if (!isLoading) {
       return;
     }
-    const { page, search } = this.state;
-    try {
-      const images = await getImagesViaApi({ search, page });
-      console.log(images);
-      if (this.state.images.length === 0 && images.totalHits === 0) {
-        Notiflix.Notify.info(`Sorry, there is no ${search}`);
-        return;
+    async function componentDidUpdate() {
+      try {
+        const images = await getImagesViaApi({ search, page, controller });
+
+        if (images.length === 0 && images.totalHits === 0) {
+          Notiflix.Notify.info(`Sorry, there is no ${search}`);
+          return;
+        }
+        setImages(state => [...state, ...images.hits]);
+      } catch (error) {
+        Notiflix.Notify.info('Sorry, something went wrong');
+      } finally {
+        setIsLoading(false);
       }
-      if (images.totalHits <= page * 12) {
-        this.setState({ showLoadMore: false });
-      }
-      if (
-        prevState.search !== this.state.search ||
-        prevState.page !== this.state.page
-      ) {
-        this.setState({
-          images: [...this.state.images, ...images.hits],
-          isLoading: false,
-        });
-      }
-    } catch (error) {
-      Notiflix.Notify.info('Sorry, something went wrong');
-    } finally {
-      this.setState({ isLoading: false });
     }
-  }
+    componentDidUpdate();
 
-  handleFormSubmit = search => {
-    this.setState({
-      search,
-      images: [],
-      page: 1,
-      isLoading: true,
-      showLoadMore: true,
-    });
+    return () => {
+      controller.abort();
+    };
+  }, [search, page, isLoading]);
+
+  const handleFormSubmit = search => {
+    setPage(1);
+    setSearch(search);
+    setImages([]);
+    setIsLoading(true);
+    setShowLoadMore(true);
   };
 
-  onLoader = () => {
-    this.setState(prevState => ({ page: prevState.page + 1, isLoading: true }));
+  const onLoader = () => {
+    setPage(page => page + 1);
   };
 
-  render() {
-    return (
-      <div className="app">
-        <SearchBar onSubmit={this.handleFormSubmit} />
-        <ImageGallery images={this.state.images} />
+  return (
+    <div className="app">
+      <SearchBar onSubmit={handleFormSubmit} />
+      <ImageGallery images={images} />
 
-        <ToastContainer autoClose={3000} />
+      <ToastContainer autoClose={3000} />
 
-        {this.state.isLoading && (
-          <ThreeDots
-            height="80"
-            width="80"
-            radius="9"
-            color="#4fa94d"
-            ariaLabel="three-dots-loading"
-            wrapperStyle={{ display: 'flex', justifyContent: 'center' }}
-            wrapperClassName=""
-            visible={true}
-          />
-        )}
-        {this.state.images.length > 0 && this.state.showLoadMore && (
-          <Loader onClick={this.onLoader} disabled={this.state.isLoading} />
-        )}
-      </div>
-    );
-  }
-}
+      {isLoading && (
+        <ThreeDots
+          height="80"
+          width="80"
+          radius="9"
+          color="#4fa94d"
+          ariaLabel="three-dots-loading"
+          wrapperStyle={{ display: 'flex', justifyContent: 'center' }}
+          wrapperClassName=""
+          visible={true}
+        />
+      )}
+      {images.length > 0 && showLoadMore && (
+        <Loader onClick={onLoader} disabled={isLoading} />
+      )}
+    </div>
+  );
+};
