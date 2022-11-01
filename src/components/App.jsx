@@ -23,9 +23,12 @@ export const App = () => {
       try {
         const images = await getImagesViaApi({ search, page, controller });
 
-        if (images.length === 0 && images.totalHits === 0) {
+        if (images.hits.length === 0 && images.totalHits === 0) {
           Notiflix.Notify.info(`Sorry, there is no ${search}`);
           return;
+        }
+        if (images.totalHits <= page * 12) {
+          setShowLoadMore(false);
         }
         setImages(state => [...state, ...images.hits]);
       } catch (error) {
