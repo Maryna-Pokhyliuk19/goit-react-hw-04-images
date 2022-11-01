@@ -51,6 +51,7 @@ export const App = () => {
 
   const onLoader = () => {
     setPage(page => page + 1);
+    setIsLoading(true);
   };
 
   return (
@@ -72,9 +73,7 @@ export const App = () => {
           visible={true}
         />
       )}
-      {images.length > 0 && showLoadMore && (
-        <Loader onClick={onLoader} disabled={isLoading} />
-      )}
+      {images.length > 0 && showLoadMore && <Loader onClick={onLoader} />}
     </div>
   );
 };
