@@ -16,12 +16,13 @@ export const App = () => {
 
   useEffect(() => {
     const controller = new AbortController();
+    const signal = controller.signal;
     if (!isLoading) {
       return;
     }
-    async function componentDidUpdate() {
+    (async function fetchImages() {
       try {
-        const images = await getImagesViaApi({ search, page, controller });
+        const images = await getImagesViaApi({ search, page, signal });
 
         if (images.hits.length === 0 && images.totalHits === 0) {
           Notiflix.Notify.info(`Sorry, there is no ${search}`);
@@ -36,8 +37,7 @@ export const App = () => {
       } finally {
         setIsLoading(false);
       }
-    }
-    componentDidUpdate();
+    })();
 
     return () => {
       controller.abort();
@@ -60,10 +60,8 @@ export const App = () => {
   return (
     <div className="app">
       <SearchBar onSubmit={handleFormSubmit} />
-      <ImageGallery images={images} />
-
+      {images.length > 0 && <ImageGallery images={images} />}
       <ToastContainer autoClose={3000} />
-
       {isLoading && (
         <ThreeDots
           height="80"
@@ -76,7 +74,9 @@ export const App = () => {
           visible={true}
         />
       )}
-      {images.length > 0 && showLoadMore && <Loader onClick={onLoader} />}
+      {images.length > 0 && showLoadMore && !isLoading && (
+        <Loader onClick={onLoader} />
+      )}
     </div>
   );
 };
